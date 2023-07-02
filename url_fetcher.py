@@ -1,22 +1,20 @@
 """ Fetch URLs from NewsAPI. """
-import os
 from datetime import datetime, timedelta
 from newsapi import NewsApiClient
 
-API_KEY = os.environ.get("NEWSAPIKEY")
 
-newsapi = NewsApiClient(api_key=API_KEY)
-
-
-def get_urls(search_query, from_date):
+def get_urls(search_query, from_date, api_key):
     """
     Get a list of URLs from NewsAPI.
 
     :param search_query: Search query to use for NewsAPI
     :param from_date: Start date for NewsAPI search
+    :param api_key: NewsAPI API key
 
     :return: List of URLs
     """
+
+    newsapi = NewsApiClient(api_key=api_key)
 
     to_date = datetime.strptime(from_date, "%Y-%m-%d") + timedelta(days=1)
 
@@ -37,5 +35,7 @@ def get_urls(search_query, from_date):
 
 
 if __name__ == "__main__":
+    from news_article_pipeline import fetch_secrets
+
     # Example usage
-    print(get_urls("+pickleball", "2021-01-01"))
+    print(get_urls("+pickleball", "2021-01-01", fetch_secrets()["NEWS_API_KEY"]))

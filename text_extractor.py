@@ -12,6 +12,7 @@ def tag_visible(element):
 
     :return: True if the element is visible, False otherwise
     """
+    # Source: https://stackoverflow.com/a/1983219/9263761 (modified)
     if element.parent.name in [
         "style",
         "script",
@@ -45,6 +46,4 @@ def get_article_text(url):
 
 if __name__ == "__main__":
     # Example usage
-    article_url = "https://www.example.com/news/article"
-    article_text = get_article_text(article_url)
-    print(article_text)
+    print(get_article_text("https://www.example.com/news/article"))
