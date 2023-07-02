@@ -23,6 +23,11 @@ def package_lambda(ctx):
     )
     shutil.copytree(site_packages_dir, layer_dir)
 
+    # Copy the necessary source files in the current directory to the layer directory
+    for filename in os.listdir("."):
+        if filename.endswith(".py") and filename != "tasks.py":
+            shutil.copy(filename, layer_dir)
+
     # Create a ZIP archive of the layer directory
     ctx.run(f"zip -r layer.zip {layer_dir}")
 
