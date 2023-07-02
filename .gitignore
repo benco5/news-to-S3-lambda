@@ -1,5 +1,5 @@
 # Custom and project specific
-*.xls
+layer.zip
 .vscode
 
 # Byte-compiled / optimized / DLL files
