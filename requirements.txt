@@ -1,0 +1,4 @@
+requests==2.28.1
+beautifulsoup4==4.12.2
+newsapi-python==0.2.7
+boto3==1.21.32
