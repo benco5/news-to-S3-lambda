@@ -1,5 +1,7 @@
 """ This is the main script that runs the pipeline. """
+import os
 import json
+from datetime import datetime, timedelta
 import boto3
 from url_fetcher import get_urls
 from articles_to_s3 import process_article_urls
@@ -37,9 +39,28 @@ def run_pipeline(query_term, bucket_name, ns_prefix, from_date):
     process_article_urls(article_urls, bucket_name, ns_prefix, from_date, secrets)
 
 
-if __name__ == "__main__":
-    from datetime import datetime, timedelta
+def lambda_handler():
+    """
+    Lambda handler function.
 
-    day_before_yesterday = datetime.now() - timedelta(days=2)
-    day_before_yesterday = day_before_yesterday.strftime("%Y-%m-%d")
-    run_pipeline("+pickleball", "pbnewsproject", "incoming", day_before_yesterday)
+    :return: None
+    """
+    yesterday = datetime.now() - timedelta(days=1)
+    yesterday = yesterday.strftime("%Y-%m-%d")
+
+    # Check to see if FROM_DATE is set as an environment variable and if not, use yesterday's date.
+    # This allows the pipeline to be run for a specific date as needed.
+    if os.environ.get("FROM_DATE"):
+        from_date = os.environ.get("FROM_DATE")
+    else:
+        from_date = yesterday
+
+    query_term = "+pickleball"
+    bucket_name = "pbnewsproject"
+    ns_prefix = "incoming"
+
+    run_pipeline(query_term, bucket_name, ns_prefix, from_date)
+
+
+if __name__ == "__main__":
+    lambda_handler()

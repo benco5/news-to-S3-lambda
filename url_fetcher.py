@@ -1,5 +1,4 @@
 """ Fetch URLs from NewsAPI. """
-from datetime import datetime, timedelta
 from newsapi import NewsApiClient
 
 
@@ -16,12 +15,10 @@ def get_urls(search_query, from_date, api_key):
 
     newsapi = NewsApiClient(api_key=api_key)
 
-    to_date = datetime.strptime(from_date, "%Y-%m-%d") + timedelta(days=1)
-
     all_articles = newsapi.get_everything(
         q=search_query,
         from_param=from_date,
-        to=to_date,
+        to=from_date,  # We only want articles from a single day
         language="en",
         sort_by="relevancy",
         page=1,
