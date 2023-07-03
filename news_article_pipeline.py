@@ -39,7 +39,7 @@ def run_pipeline(query_term, bucket_name, ns_prefix, from_date):
     process_article_urls(article_urls, bucket_name, ns_prefix, from_date, secrets)
 
 
-def lambda_handler():
+def lambda_handler(event=None, context=None):
     """
     Lambda handler function.
 
