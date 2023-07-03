@@ -1,5 +1,6 @@
 """ Description: Extract the visible text from an article. """
 import requests
+from requests.exceptions import RequestException
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 
@@ -35,13 +36,17 @@ def get_article_text(url):
 
     :return: Visible text of the article
     """
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()  # Raise an exception for non-successful status codes
+        soup = BeautifulSoup(response.content, "html.parser")
+        texts = soup.findAll(string=True)
+        visible_texts = filter(tag_visible, texts)
 
-    response = requests.get(url, timeout=10)
-    soup = BeautifulSoup(response.content, "html.parser")
-    texts = soup.findAll(string=True)
-    visible_texts = filter(tag_visible, texts)
-
-    return " ".join(t.strip() for t in visible_texts)
+        return " ".join(t.strip() for t in visible_texts)
+    except RequestException:
+        # Handle request-related exceptions (e.g., timeout, connection error)
+        return ""
 
 
 if __name__ == "__main__":

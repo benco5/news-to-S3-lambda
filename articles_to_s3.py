@@ -23,16 +23,12 @@ def process_article_urls(urls, bucket_name, ns_prefix, date_prefix, secrets):
     )
 
     for url in urls:
-        # Fetch the article text
         text = get_article_text(url)
+        if text:
+            file_name = url.replace("/", "_") + ".txt"
+            full_prefix = f"{ns_prefix}/{date_prefix}/{file_name}"
 
-        # Generate a unique file name for the text file based on the article URL
-        # You can customize the file name generation logic as per your requirements
-        file_name = url.replace("/", "_") + ".txt"
-        full_prefix = f"{ns_prefix}/{date_prefix}/{file_name}"
-
-        # Upload the text file to the S3 bucket
-        s3.put_object(Body=text, Bucket=bucket_name, Key=full_prefix)
+            s3.put_object(Body=text, Bucket=bucket_name, Key=full_prefix)
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ def get_urls(search_query, from_date, api_key):
     all_articles = newsapi.get_everything(
         q=search_query,
         from_param=from_date,
-        to=from_date,  # We only want articles from a single day
+        to=from_date,  # Only get articles from single day
         language="en",
         sort_by="relevancy",
         page=1,
