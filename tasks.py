@@ -1,36 +1,52 @@
+"""Invoke tasks for packaging the project as a Lambda Layer"""
 import os
 import sys
 import shutil
+import subprocess
+import zipfile
 from invoke import task
 
 
 @task
 def package_lambda(ctx):
     """Package the project as a Lambda Layer"""
-    # Create a temporary directory for the virtual environment
-    venv_dir = "layer_venv"
-    ctx.run(f"python -m venv {venv_dir}")
-
-    # Activate the virtual environment and install project dependencies
-    with ctx.prefix(f"source {venv_dir}/bin/activate"):
-        ctx.run("pip install -r requirements.txt")
-
-    # Copy the virtual environment contents to the layer directory
+    # Create the layer directory
     layer_dir = "layer"
-    python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-    site_packages_dir = os.path.join(
-        venv_dir, "lib", f"python{python_version}", "site-packages"
+    os.makedirs(layer_dir, exist_ok=True)
+
+    # Copy the source files to the layer directory
+    source_files = [
+        "articles_to_s3.py",
+        "news_article_pipeline.py",
+        "text_extractor.py",
+        "url_fetcher.py",
+    ]
+    for file in source_files:
+        shutil.copy(file, layer_dir)
+
+    # Install project dependencies into the layer directory
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pip",
+            "install",
+            "-r",
+            "requirements.txt",
+            "-t",
+            layer_dir,
+        ],
+        check=True,
     )
-    shutil.copytree(site_packages_dir, layer_dir)
 
-    # Copy the necessary source files in the current directory to the layer directory
-    for filename in os.listdir("."):
-        if filename.endswith(".py") and filename != "tasks.py":
-            shutil.copy(filename, layer_dir)
+    # Zip the layer directory
+    package_name = "lambda_package.zip"
+    with zipfile.ZipFile(package_name, "w", zipfile.ZIP_DEFLATED) as zf:
+        for root, _, files in os.walk(layer_dir):
+            for file in files:
+                abs_path = os.path.join(root, file)
+                rel_path = os.path.relpath(abs_path, layer_dir)
+                zf.write(abs_path, arcname=rel_path)
 
-    # Create a ZIP archive of the layer directory
-    ctx.run(f"zip -r layer.zip {layer_dir}")
-
-    # Clean up the temporary directory
-    shutil.rmtree(venv_dir)
+    # Clean up
     shutil.rmtree(layer_dir)
